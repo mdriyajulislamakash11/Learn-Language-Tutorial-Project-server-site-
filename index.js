@@ -10,7 +10,7 @@ app.use(express.json());
 
 // mongo db code:
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zchez.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -26,6 +26,29 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const languageCollections = client.db("language_DB").collection("tutorials");
+
+    app.get("/tutorials", async (req, res) => {
+        const cursor = languageCollections.find()
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+
+    app.post("/add-tutorials", async (req, res) => {
+        const language = req.body;
+        const result = await languageCollections.insertOne(language)
+        res.send(result)
+    });
+
+
+
+
+
+
+
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
