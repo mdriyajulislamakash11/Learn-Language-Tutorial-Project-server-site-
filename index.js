@@ -27,11 +27,12 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const languageCollections = client.db("language_DB").collection("tutorials");
-    const languageBookingCollections = client.db("language_DB").collection("Booking");
-
-
-
+    const languageCollections = client
+      .db("language_DB")
+      .collection("tutorials");
+    const languageBookingCollections = client
+      .db("language_DB")
+      .collection("Booking");
 
     app.get("/tutorials", async (req, res) => {
       const cursor = languageCollections.find();
@@ -41,16 +42,16 @@ async function run() {
 
     app.get("/tutorial/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) };
       const result = await languageCollections.findOne(query);
       res.send(result);
-    })
+    });
 
     app.get("/tutorials/:category", async (req, res) => {
       const category = req.params.category;
       const query = { language: category };
-      const result = await languageCollections.find(query).toArray()
-      res.send(result)
+      const result = await languageCollections.find(query).toArray();
+      res.send(result);
     });
 
     app.post("/add-tutorials", async (req, res) => {
@@ -59,28 +60,26 @@ async function run() {
       res.send(result);
     });
 
-
-
-
-
     // Booking colections APIs
 
-    app.get("booking", async(req, res) => {
-      const cursor = languageBookingCollections.find() 
-      const result = await cursor.toArray()
-      res.send(result)
-    })
+    app.get("/bookings", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const booked = await languageBookingCollections.find(query).toArray();
+      res.send(booked)
+    });
+
+    app.get("booking", async (req, res) => {
+      const cursor = languageBookingCollections.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     app.post("/add-booking", async (req, res) => {
       const language = req.body;
       const result = await languageBookingCollections.insertOne(language);
       res.send(result);
     });
-
-
-
-
-
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
