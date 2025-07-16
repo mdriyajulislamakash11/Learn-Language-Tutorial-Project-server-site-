@@ -27,28 +27,28 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const languageCollections = client.db("language_DB").collection("tutorials");
+    const languageCollections = client
+      .db("language_DB")
+      .collection("tutorials");
 
     app.get("/tutorials", async (req, res) => {
-        const cursor = languageCollections.find()
-        const result = await cursor.toArray()
-        res.send(result)
-    })
-
-    app.post("/add-tutorials", async (req, res) => {
-        const language = req.body;
-        const result = await languageCollections.insertOne(language)
-        res.send(result)
+      const cursor = languageCollections.find();
+      const result = await cursor.toArray();
+      res.send(result);
     });
 
+    app.get("/tutorials/:category", async (req, res) => {
+      const category = req.params.category;
+      const query = { language: category };
+      const result = await languageCollections.find(query).toArray()
+      res.send(result)
+    });
 
-
-
-
-
-
-
-
+    app.post("/add-tutorials", async (req, res) => {
+      const language = req.body;
+      const result = await languageCollections.insertOne(language);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
