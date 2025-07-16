@@ -67,8 +67,21 @@ async function run() {
       res.send(result);
     });
 
-    // Booking colections APIs
+    app.delete("/tutorial/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await languageCollections.deleteOne(query);
+      res.send(result)
+    })
 
+
+
+
+
+
+
+
+    // Booking colections APIs
     app.get("/bookings", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
