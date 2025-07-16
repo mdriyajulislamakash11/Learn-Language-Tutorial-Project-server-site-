@@ -34,8 +34,15 @@ async function run() {
       .db("language_DB")
       .collection("Booking");
 
+
+// All Language: 
     app.get("/tutorials", async (req, res) => {
-      const cursor = languageCollections.find();
+      const email = req.query.email;
+      let query = {};
+      if(email){
+        query = {email: email}
+      }
+      const cursor = languageCollections.find(query);
       const result = await cursor.toArray();
       res.send(result);
     });
