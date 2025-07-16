@@ -66,7 +66,7 @@ async function run() {
       const email = req.query.email;
       const query = { email: email };
       const booked = await languageBookingCollections.find(query).toArray();
-      res.send(booked)
+      res.send(booked);
     });
 
     app.get("booking", async (req, res) => {
@@ -80,6 +80,22 @@ async function run() {
       const result = await languageBookingCollections.insertOne(language);
       res.send(result);
     });
+
+    // rivew count increes kortesi
+   app.patch("/tutorials/review/:id", async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const tutorial = await languageCollections.findOne(filter);
+  const currentReview = parseInt(tutorial.review) || 0;
+  const newReview = currentReview + 1;
+  const updateDoc = {
+    $set: { review: newReview },
+  };
+
+  const result = await languageCollections.updateOne(filter, updateDoc);
+  res.send(result);
+});
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
