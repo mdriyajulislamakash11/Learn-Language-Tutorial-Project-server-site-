@@ -34,13 +34,12 @@ async function run() {
       .db("language_DB")
       .collection("Booking");
 
-
-// All Language: 
+    // All Language:
     app.get("/tutorials", async (req, res) => {
       const email = req.query.email;
       let query = {};
-      if(email){
-        query = {email: email}
+      if (email) {
+        query = { email: email };
       }
       const cursor = languageCollections.find(query);
       const result = await cursor.toArray();
@@ -67,19 +66,34 @@ async function run() {
       res.send(result);
     });
 
+    // Updated Card
+    app.put("/tutorial/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updatedTutorial = req.body;
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          name: updatedTutorial.name,
+          image: updatedTutorial.image,
+          language: updatedTutorial.language,
+          price: updatedTutorial.price,
+          description: updatedTutorial.description,
+          review: updatedTutorial.review,
+        },
+      };
+
+    const result = await languageCollections.updateOne(query, updatedDoc, options);
+    res.send(result);
+    });
+
+    // deleted booking card
     app.delete("/tutorial/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) };
       const result = await languageCollections.deleteOne(query);
-      res.send(result)
-    })
-
-
-
-
-
-
-
+      res.send(result);
+    });
 
     // Booking colections APIs
     app.get("/bookings", async (req, res) => {
@@ -102,20 +116,19 @@ async function run() {
     });
 
     // rivew count increes kortesi
-   app.patch("/tutorials/review/:id", async (req, res) => {
-  const id = req.params.id;
-  const filter = { _id: new ObjectId(id) };
-  const tutorial = await languageCollections.findOne(filter);
-  const currentReview = parseInt(tutorial.review) || 0;
-  const newReview = currentReview + 1;
-  const updateDoc = {
-    $set: { review: newReview },
-  };
+    app.patch("/tutorials/review/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const tutorial = await languageCollections.findOne(filter);
+      const currentReview = parseInt(tutorial.review) || 0;
+      const newReview = currentReview + 1;
+      const updateDoc = {
+        $set: { review: newReview },
+      };
 
-  const result = await languageCollections.updateOne(filter, updateDoc);
-  res.send(result);
-});
-
+      const result = await languageCollections.updateOne(filter, updateDoc);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
