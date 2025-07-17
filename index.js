@@ -34,6 +34,15 @@ async function run() {
       .db("language_DB")
       .collection("Booking");
 
+      // JWT Authentication:
+      app.post('/jwt', async (req, res) => {
+        const user = req.body;
+        const tokent = jwt.sign(user, "secret", {expiresIn: '2h'})
+        res.send(tokent);
+      })
+
+
+
     // All Language:
     app.get("/tutorials", async (req, res) => {
       const email = req.query.email;
