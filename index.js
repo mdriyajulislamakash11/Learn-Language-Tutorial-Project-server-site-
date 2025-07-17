@@ -2,12 +2,17 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
-const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173/"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -37,14 +42,20 @@ async function run() {
       .db("language_DB")
       .collection("Booking");
 
-      // JWT Authentication:
-      app.post('/jwt', async (req, res) => {
-        const user = req.body;
-        const tokent = jwt.sign(user, process.env.JWT_ACCESS_TOKEN, {expiresIn: '2h'})
-        res.send(tokent);
-      })
+    // JWT Authentication:
+    app.post("/jwt", async (req, res) => {
+      const user = req.body;
+      const tokent = jwt.sign(user, process.env.JWT_ACCESS_TOKEN, {
+        expiresIn: "2h",
+      });
+      res
+        .cookie("token", tokent, {
+          httpOnly: true,
+          secure: false,
+        })
 
-
+        .send({ success: true });
+    });
 
     // All Language:
     app.get("/tutorials", async (req, res) => {
@@ -95,8 +106,12 @@ async function run() {
         },
       };
 
-    const result = await languageCollections.updateOne(query, updatedDoc, options);
-    res.send(result);
+      const result = await languageCollections.updateOne(
+        query,
+        updatedDoc,
+        options
+      );
+      res.send(result);
     });
 
     // deleted booking card
