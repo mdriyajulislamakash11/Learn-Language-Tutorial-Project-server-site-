@@ -2,11 +2,14 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // mongo db code:
 
@@ -37,7 +40,7 @@ async function run() {
       // JWT Authentication:
       app.post('/jwt', async (req, res) => {
         const user = req.body;
-        const tokent = jwt.sign(user, "secret", {expiresIn: '2h'})
+        const tokent = jwt.sign(user, process.env.JWT_ACCESS_TOKEN, {expiresIn: '2h'})
         res.send(tokent);
       })
 
