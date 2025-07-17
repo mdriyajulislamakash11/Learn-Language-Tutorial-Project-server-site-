@@ -57,7 +57,7 @@ async function run() {
       .db("language_DB")
       .collection("Booking");
 
-    // JWT Authentication:
+    // JWT Authentication:------------------------------------> JWT 
     app.post("/jwt", async (req, res) => {
       const user = req.body;
       const tokent = jwt.sign(user, process.env.JWT_ACCESS_TOKEN, {
@@ -71,6 +71,24 @@ async function run() {
 
         .send({ success: true });
     });
+
+    // JWT LogOut
+    app.post('/logOut', (req, res) => {
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: false,
+      })
+      .send({success: true})
+    })
+
+    // ____________________________________ END ______________________________________\\
+
+
+
+
+
+
+
 
     // All Language:
     app.get("/tutorials", async (req, res) => {
