@@ -15,9 +15,24 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+//JWT Verification__________________________________//
+const verifyToken = (req, res, next) => {
+  const token = req?.cookies?.token; // ✅ cookie → cookies
+
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized: No token" });
+  }
+
+  jwt.verify(token, process.env.JWT_ACCESS_TOKEN, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ message: "Forbidden: Invalid token" });
+    }
+    req.user = decoded;
+    next();
+  });
+};
 
 // mongo db code:
-
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zchez.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -123,8 +138,13 @@ async function run() {
     });
 
     // Booking colections APIs
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings", verifyToken, async (req, res) => {
       const email = req.query.email;
+
+      if (req.user.email !== email) {
+        return res.status(403).send({ message: "Forbidden: Email mismatch" });
+      }
+
       const query = { email: email };
       const booked = await languageBookingCollections.find(query).toArray();
       res.send(booked);
