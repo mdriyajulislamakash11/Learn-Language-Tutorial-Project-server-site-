@@ -9,7 +9,10 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [
+      "http://localhost:5173",
+      "https://chipper-taffy-4da6de.netlify.app",
+    ],
     credentials: true,
   })
 );
@@ -48,7 +51,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const languageCollections = client
       .db("language_DB")
@@ -57,7 +60,7 @@ async function run() {
       .db("language_DB")
       .collection("Booking");
 
-    // JWT Authentication:------------------------------------> JWT 
+    // JWT Authentication:------------------------------------> JWT
     app.post("/jwt", async (req, res) => {
       const user = req.body;
       const tokent = jwt.sign(user, process.env.JWT_ACCESS_TOKEN, {
@@ -66,29 +69,24 @@ async function run() {
       res
         .cookie("token", tokent, {
           httpOnly: true,
-          secure: false,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         })
 
         .send({ success: true });
     });
 
     // JWT LogOut
-    app.post('/logOut', (req, res) => {
-      res.clearCookie("token", {
-        httpOnly: true,
-        secure: false,
-      })
-      .send({success: true})
-    })
+    app.post("/logOut", (req, res) => {
+      res
+        .clearCookie("token", {
+          httpOnly: true,
+          secure: false,
+        })
+        .send({ success: true });
+    });
 
     // ____________________________________ END ______________________________________\\
-
-
-
-
-
-
-
 
     // All Language:
     app.get("/tutorials", async (req, res) => {
@@ -196,7 +194,7 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
